@@ -12,14 +12,14 @@ import org.reflections.Reflections;
 public class TableNamesResolver {
 
 	public static final String SEQUENCE_PREFIX = "seq_";
-	private static final String MISSING_TABLE_NAME = "class name needed for persist entity, use TableName annotation and register the package in TablesNamesResolver";
+	private static final String MISSING_TABLE_NAME =
+			"class name needed for persist entity, use TableName annotation and register the package in " + "TablesNamesResolver";
 
-	private static Map<Class<?>, String> tableNames = newHashMap();
-	private static Map<String, String[]> indexesNames = newHashMap();
+	private Map<Class<?>, String> tableNames = newHashMap();
+	private Map<String, String[]> indexesNames = newHashMap();
 
-	static {
-		Reflections reflections = new Reflections( //
-				"com.rinlit.model.domain.jsonb");
+	public TableNamesResolver(String... packagesToScan) {
+		Reflections reflections = new Reflections(packagesToScan);
 		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(TableName.class);
 		for (Class<?> classes : annotated) {
 			TableName tableName = classes.getAnnotation(TableName.class);
@@ -28,7 +28,7 @@ public class TableNamesResolver {
 		}
 	}
 
-	public static String getTableName(Class<?> clazz) {
+	public String getTableName(Class<?> clazz) {
 		String tableName = tableNames.get(clazz);
 		if (StringUtils.isBlank(tableName)) {
 			throw new RuntimeException(MISSING_TABLE_NAME);
@@ -36,19 +36,19 @@ public class TableNamesResolver {
 		return tableName;
 	}
 
-	public static String getSequenceName(Class<?> clazz) {
+	public String getSequenceName(Class<?> clazz) {
 		return SEQUENCE_PREFIX + getTableName(clazz);
 	}
 
-	public static String getSequenceName(String tableName) {
+	public String getSequenceName(String tableName) {
 		return SEQUENCE_PREFIX + tableName;
 	}
 
-	public static String[] getIndexes(String tableName) {
+	public String[] getIndexes(String tableName) {
 		return indexesNames.get(tableName);
 	}
 
-	public static Collection<String> getTableNames() {
+	public Collection<String> getTableNames() {
 		return tableNames.values();
 	}
 

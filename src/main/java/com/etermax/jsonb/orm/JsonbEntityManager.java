@@ -1,7 +1,5 @@
 package com.etermax.jsonb.orm;
 
-import static com.etermax.jsonb.orm.TableNamesResolver.getSequenceName;
-import static com.etermax.jsonb.orm.TableNamesResolver.getTableName;
 import static com.etermax.jsonb.orm.exceptions.ExceptionCatcher.executeOrRuntime;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -17,33 +15,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SuppressWarnings("rawtypes")
 public class JsonbEntityManager {
 	private static final Logger logger = LoggerFactory.getLogger(JsonbEntityManager.class);
-
 	private ObjectMapper objectMapper;
+	private PostgresConnector connector;
+	private TableNamesResolver tableNamesResolver;
 
-	public JsonbEntityManager(ObjectMapper objectMapper, PostgresConnector connector) {
+	public JsonbEntityManager(ObjectMapper objectMapper, PostgresConnector connector, TableNamesResolver tableNamesResolver) {
 		this.objectMapper = objectMapper;
 		this.connector = connector;
-	}
-
-	private PostgresConnector connector;
-
-	public String serialize(JsonbEntity entity) {
-		return executeOrRuntime(() -> objectMapper.writeValueAsString(entity).replace("'", "''"));
+		this.tableNamesResolver = tableNamesResolver;
 	}
 
 	public void save(JsonbEntity entity) {
 		if (!entity.persisted()) {
 			assignIdToNewEntity(entity);
 			String saveQuery = "INSERT INTO %s (id, entity) VALUES (%s, '%s');";
-			execute(format(saveQuery, getTableName(entity.getClass()), entity.getId(), serialize(entity)));
+			connector.execute(format(saveQuery, getTableName(entity.getClass()), entity.getId(), serialize(entity)));
 		} else {
 			String updateQuery = "update %s set entity= '%s' where id = %s;";
-			execute(format(updateQuery, getTableName(entity.getClass()), serialize(entity), entity.getId()));
+			connector.execute(format(updateQuery, getTableName(entity.getClass()), serialize(entity), entity.getId()));
 		}
-	}
-
-	public void execute(String query) {
-		connector.execute(query);
 	}
 
 	protected <T> List<T> executeListEntityResultOnWriteNode(Class<T> clazz, String query) {
@@ -110,7 +100,7 @@ public class JsonbEntityManager {
 	}
 
 	public void delete(Class<?> clazz, Long id) {
-		execute(format("delete from %s where id=%d", getTableName(clazz), id));
+		connector.execute(format("delete from %s where id=%d", getTableName(clazz), id));
 
 	}
 
@@ -178,6 +168,18 @@ public class JsonbEntityManager {
 
 	public void deleteFile(Long id) {
 		connector.execute("delete from bytes_files where id = " + id);
+	}
+
+	private String serialize(JsonbEntity entity) {
+		return executeOrRuntime(() -> objectMapper.writeValueAsString(entity).replace("'", "''"));
+	}
+
+	private String getTableName(Class<?> clazz) {
+		return tableNamesResolver.getTableName(clazz);
+	}
+
+	private String getSequenceName(Class<?> clazz) {
+		return tableNamesResolver.getSequenceName(clazz);
 	}
 
 }

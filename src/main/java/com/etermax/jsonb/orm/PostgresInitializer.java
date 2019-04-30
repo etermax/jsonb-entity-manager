@@ -1,8 +1,5 @@
 package com.etermax.jsonb.orm;
 
-import static com.etermax.jsonb.orm.TableNamesResolver.getIndexes;
-import static com.etermax.jsonb.orm.TableNamesResolver.getSequenceName;
-import static com.etermax.jsonb.orm.TableNamesResolver.getTableNames;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -12,8 +9,11 @@ public class PostgresInitializer {
 
 	private PostgresConnector connector;
 
-	public PostgresInitializer(PostgresConnector connector) {
+	private TableNamesResolver tableNamesResolver;
+
+	public PostgresInitializer(PostgresConnector connector, TableNamesResolver tableNamesResolver) {
 		this.connector = connector;
+		this.tableNamesResolver = tableNamesResolver;
 	}
 
 	public void initialize() {
@@ -71,4 +71,15 @@ public class PostgresInitializer {
 		}
 	}
 
+	private Collection<String> getTableNames() {
+		return tableNamesResolver.getTableNames();
+	}
+
+	private String[] getIndexes(String tableName) {
+		return tableNamesResolver.getIndexes(tableName);
+	}
+
+	private String getSequenceName(String tableName) {
+		return tableNamesResolver.getSequenceName(tableName);
+	}
 }

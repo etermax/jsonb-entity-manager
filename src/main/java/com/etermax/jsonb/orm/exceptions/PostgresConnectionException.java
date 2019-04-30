@@ -5,4 +5,8 @@ public class PostgresConnectionException extends RuntimeException {
 	public PostgresConnectionException(Exception e) {
 		super(e);
 	}
+
+	public PostgresConnectionException() {
+		super();
+	}
 }
