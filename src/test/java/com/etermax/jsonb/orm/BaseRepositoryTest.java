@@ -1,7 +1,7 @@
 package com.etermax.jsonb.orm;
 
 /*
-public abstract class BaseRepositoryTest<T extends AbstractJsonbEntity> extends PostgresBaseTest {
+public abstract class BaseRepositoryTest<T extends JsonbEntity> extends PostgresBaseTest {
 	protected abstract BaseRepository<T> getRepository();
 
 	protected abstract T getInstance();

@@ -18,21 +18,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JsonbEntityManager {
 	private static final Logger logger = LoggerFactory.getLogger(JsonbEntityManager.class);
 
-	private static ObjectMapper objectMapper;
-	private static PostgresConnector connector;
+	private ObjectMapper objectMapper;
 
-	public static void configObjectMapper(ObjectMapper objectMapper) {
-		JsonbEntityManager.objectMapper = objectMapper;
+	public JsonbEntityManager(ObjectMapper objectMapper, PostgresConnector connector) {
+		this.objectMapper = objectMapper;
+		this.connector = connector;
 	}
 
-	public static void configPostgresConnector(PostgresConnector connector) {
-	}
+	private PostgresConnector connector;
 
-	public static String serialize(AbstractJsonbEntity entity) {
+	public String serialize(JsonbEntity entity) {
 		return executeOrRuntime(() -> objectMapper.writeValueAsString(entity).replace("'", "''"));
 	}
 
-	public static void save(AbstractJsonbEntity entity) {
+	public void save(JsonbEntity entity) {
 		if (!entity.persisted()) {
 			assignIdToNewEntity(entity);
 			String saveQuery = "INSERT INTO %s (id, entity) VALUES (%s, '%s');";
@@ -43,11 +42,23 @@ public class JsonbEntityManager {
 		}
 	}
 
-	public static void execute(String query) {
+	public void execute(String query) {
 		connector.execute(query);
 	}
 
-	public static <T> List<T> executeListEntityResult(Class<T> clazz, String query) {
+	protected <T> List<T> executeListEntityResultOnWriteNode(Class<T> clazz, String query) {
+		List<String> jsons = newArrayList();
+		connector.executeOnWriteNode(query, rs -> {
+			executeOrRuntime(() -> {
+				while (rs.next()) {
+					jsons.add(rs.getString("entity"));
+				}
+			});
+		});
+		return jsons.stream().map(json -> deserialize(clazz, json)).collect(toList());
+	}
+
+	public <T> List<T> executeListEntityResult(Class<T> clazz, String query) {
 		List<String> jsons = newArrayList();
 		connector.execute(query, rs -> {
 			executeOrRuntime(() -> {
@@ -59,14 +70,14 @@ public class JsonbEntityManager {
 		return jsons.stream().map(json -> deserialize(clazz, json)).collect(toList());
 	}
 
-	private static void assignIdToNewEntity(AbstractJsonbEntity entity) {
-		connector.execute(format("select nextval('%s')", getSequenceName(entity.getClass())), rs -> executeOrRuntime(() -> {
+	private void assignIdToNewEntity(JsonbEntity entity) {
+		connector.executeNextVal(format("select nextval('%s')", getSequenceName(entity.getClass())), rs -> executeOrRuntime(() -> {
 			rs.next();
 			entity.setId(rs.getLong(1));
 		}));
 	}
 
-	public static <T> T executeUniqueResult(String query) {
+	public <T> T executeUniqueResult(String query) {
 		Retriever<T> retriever = new Retriever<>();
 		connector.execute(query, rs -> {
 			executeOrRuntime(() -> {
@@ -78,7 +89,19 @@ public class JsonbEntityManager {
 		return retriever.get();
 	}
 
-	public static List executeListResult(String query) {
+	protected <T> T executeUniqueEntityResultOnWriteNode(Class<T> clazz, String query) {
+		Retriever<String> retriever = new Retriever<>();
+		connector.executeOnWriteNode(query, rs -> {
+			executeOrRuntime(() -> {
+				if (rs.next()) {
+					retriever.set(rs.getString("entity"));
+				}
+			});
+		});
+		return retriever.get() == null ? null : deserialize(clazz, retriever.get());
+	}
+
+	public List executeListResult(String query) {
 		List<Object> list = newArrayList();
 		connector.execute(query, rs -> {
 			executeOrRuntime(() -> {
@@ -90,12 +113,12 @@ public class JsonbEntityManager {
 		return list;
 	}
 
-	public static void delete(Class<?> clazz, Long id) {
+	public void delete(Class<?> clazz, Long id) {
 		execute(format("delete from %s where id=%d", getTableName(clazz), id));
 
 	}
 
-	public static <T> T findBy(Class<T> clazz, long id) {
+	public <T> T findBy(Class<T> clazz, long id) {
 		String saveQuery = "select id, entity from %s where id = %d;";
 		try {
 			return executeUniqueEntityResult(clazz, format(saveQuery, getTableName(clazz), id));
@@ -105,7 +128,7 @@ public class JsonbEntityManager {
 		}
 	}
 
-	public static <T> T findByCode(Class<T> clazz, String code) {
+	public <T> T findByCode(Class<T> clazz, String code) {
 		String saveQuery = "select id, entity from %s where entity->'code' = '\"%s\"'";
 		try {
 			return executeUniqueEntityResult(clazz, format(saveQuery, getTableName(clazz), code));
@@ -115,12 +138,12 @@ public class JsonbEntityManager {
 		}
 	}
 
-	public static <T> List<T> findAll(Class<T> clazz) {
+	public <T> List<T> findAll(Class<T> clazz) {
 		String query = "SELECT * FROM %s;";
 		return executeListEntityResult(clazz, format(query, getTableName(clazz)));
 	}
 
-	public static <T> T executeUniqueEntityResult(Class<T> clazz, String query) {
+	public <T> T executeUniqueEntityResult(Class<T> clazz, String query) {
 		Retriever<String> retriever = new Retriever<>();
 		connector.execute(query, rs -> {
 			executeOrRuntime(() -> {
@@ -132,11 +155,11 @@ public class JsonbEntityManager {
 		return retriever.get() == null ? null : deserialize(clazz, retriever.get());
 	}
 
-	public static <T> T deserialize(Class<T> clazz, String json) {
+	public <T> T deserialize(Class<T> clazz, String json) {
 		return executeOrRuntime(() -> objectMapper.readValue(json, clazz));
 	}
 
-	public static class Retriever<J> {
+	public class Retriever<J> {
 		private J element;
 
 		public J get() {
@@ -149,24 +172,15 @@ public class JsonbEntityManager {
 
 	}
 
-	public static PostgresConnector getConnector() {
+	public PostgresConnector getConnector() {
 		return connector;
 	}
 
-	public static ObjectMapper getObjectMapper() {
+	public ObjectMapper getObjectMapper() {
 		return objectMapper;
 	}
 
-	public static void persistFile(Long id, String name, byte[] bytes) {
-		deleteFile(id);
-		connector.executeByteArrayInsert(id, name, bytes);
-	}
-
-	public static byte[] findFile(Long id) {
-		return connector.executeFindByteArray(id);
-	}
-
-	public static void deleteFile(Long id) {
+	public void deleteFile(Long id) {
 		connector.execute("delete from bytes_files where id = " + id);
 	}
 
