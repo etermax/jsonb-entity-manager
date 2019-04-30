@@ -1,8 +1,11 @@
 package com.etermax.jsonb.orm.domain;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.etermax.jsonb.orm.JsonbEntity;
 import com.etermax.jsonb.orm.TableName;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @TableName(value = "test_table", indexes = { " -> 'indexedValue'" })
@@ -14,9 +17,16 @@ public class SomeJsonbEntity implements JsonbEntity {
 	@JsonProperty
 	private String indexedValue;
 
-	@JsonCreator
-	public SomeJsonbEntity(@JsonProperty String indexedValue) {
+	public SomeJsonbEntity() {
+
+	}
+
+	public SomeJsonbEntity(Long id, String indexedValue) {
 		this.id = id;
+		this.indexedValue = indexedValue;
+	}
+
+	public SomeJsonbEntity(String indexedValue) {
 		this.indexedValue = indexedValue;
 	}
 
@@ -28,5 +38,15 @@ public class SomeJsonbEntity implements JsonbEntity {
 	@Override
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 }
