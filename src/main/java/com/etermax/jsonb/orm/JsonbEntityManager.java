@@ -60,13 +60,11 @@ public class JsonbEntityManager {
 
 	public <T> List<T> executeListEntityResult(Class<T> clazz, String query) {
 		List<String> jsons = newArrayList();
-		connector.execute(query, rs -> {
-			executeOrRuntime(() -> {
-				while (rs.next()) {
-					jsons.add(rs.getString("entity"));
-				}
-			});
-		});
+		connector.execute(query, resultSet -> executeOrRuntime(() -> {
+			while (resultSet.next()) {
+				jsons.add(resultSet.getString("entity"));
+			}
+		}));
 		return jsons.stream().map(json -> deserialize(clazz, json)).collect(toList());
 	}
 
@@ -79,13 +77,11 @@ public class JsonbEntityManager {
 
 	public <T> T executeUniqueResult(String query) {
 		Retriever<T> retriever = new Retriever<>();
-		connector.execute(query, rs -> {
-			executeOrRuntime(() -> {
-				if (rs.next()) {
-					retriever.set((T) rs.getObject(1));
-				}
-			});
-		});
+		connector.execute(query, resultSet -> executeOrRuntime(() -> {
+			if (resultSet.next()) {
+				retriever.set((T) resultSet.getObject(1));
+			}
+		}));
 		return retriever.get();
 	}
 

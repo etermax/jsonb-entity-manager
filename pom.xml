@@ -13,8 +13,6 @@
     <properties>
 
       <java.compiler.version>1.8</java.compiler.version>
-      <kotlin.version>1.2.41</kotlin.version>
-      <kluent.version>1.34</kluent.version>
 
     </properties>
 
@@ -53,18 +51,7 @@
         <artifactId>jackson-databind</artifactId>
         <version>2.9.8</version>
       </dependency>
-      <!-- Kotlin -->
-      <dependency>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-stdlib-jdk8</artifactId>
-        <version>${kotlin.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-reflect</artifactId>
-        <version>${kotlin.version}</version>
-      </dependency>
-      <dependency>
+     <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>27.1-jre</version>
@@ -79,19 +66,6 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>3.12.2</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.amshove.kluent</groupId>
-        <artifactId>kluent</artifactId>
-        <version>${kluent.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.nhaarman</groupId>
-        <artifactId>mockito-kotlin</artifactId>
-        <version>1.5.0</version>
         <scope>test</scope>
       </dependency>
 
@@ -129,35 +103,23 @@
 			<artifactId>spring-boot-autoconfigure</artifactId>
 			<version>1.5.8.RELEASE</version>
 		</dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>RELEASE</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope>
+      </dependency>
 
 
-	</dependencies>
+    </dependencies>
     <build>
       <plugins>
-        <plugin>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-maven-plugin</artifactId>
-          <version>${kotlin.version}</version>
-          <executions>
-            <execution>
-              <id>compile</id>
-              <phase>compile</phase>
-              <goals>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>test-compile</id>
-              <phase>test-compile</phase>
-              <goals>
-                <goal>test-compile</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <jvmTarget>${java.compiler.version}</jvmTarget>
-          </configuration>
-        </plugin>
+
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

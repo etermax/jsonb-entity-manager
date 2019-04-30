@@ -67,6 +67,7 @@ public class PostgresConnector {
 	public void executeOnWriteNode(String query, Consumer<ResultSet> consumer) {
 		long initialTime = DateTime.now().getMillis();
 		try (Connection conn = writeDataSource.getConnection(); Statement st = conn.createStatement()) {
+			st.setQueryTimeout(queryTimeout);
 			try (ResultSet rs = st.executeQuery(query)) {
 				consumer.accept(rs);
 			}
@@ -80,18 +81,7 @@ public class PostgresConnector {
 	}
 
 	public void executeNextVal(String query, Consumer<ResultSet> consumer) {
-		long initialTime = DateTime.now().getMillis();
-		try (Connection conn = writeDataSource.getConnection(); Statement st = conn.createStatement()) {
-			try (ResultSet rs = st.executeQuery(query)) {
-				consumer.accept(rs);
-			}
-		} catch (Exception e) {
-			logger.error("ERROR " + " " + url + " " + EXECUTING + query, e);
-			throw new PostgresConnectionException(e);
-		}
-		long finalTime = DateTime.now().getMillis();
-		logger.info(" read time: " + (finalTime - initialTime) + " " + url + " " + EXECUTING + query);
-
+		executeOnWriteNode(query, consumer);
 	}
 
 	public void executeExist(String query, Consumer<Boolean> consumer) {
