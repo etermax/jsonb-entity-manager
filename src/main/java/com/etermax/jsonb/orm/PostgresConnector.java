@@ -72,7 +72,7 @@ public class PostgresConnector {
 				consumer.accept(rs);
 			}
 		} catch (Exception e) {
-			logger.error("ERROR " + " " + url + " " + EXECUTING + query, e);
+			logger.error("ERROR " + url + " " + EXECUTING + query, e);
 			throw new PostgresConnectionException(e);
 		}
 		long finalTime = DateTime.now().getMillis();

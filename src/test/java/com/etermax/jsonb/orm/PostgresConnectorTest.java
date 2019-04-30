@@ -3,6 +3,7 @@ package com.etermax.jsonb.orm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,12 +43,12 @@ public class PostgresConnectorTest {
 	@Before
 	public void setUp() throws SQLException {
 		MockitoAnnotations.initMocks(this);
-		Mockito.when(readDataSource.getConnection()).thenReturn(readConnection);
-		Mockito.when(readConnection.createStatement()).thenReturn(readStatement);
-		Mockito.when(writeDataSource.getConnection()).thenReturn(writeConnection);
-		Mockito.when(writeConnection.prepareStatement(Mockito.anyString())).thenReturn(writeStatement);
-		Mockito.when(writeConnection.createStatement()).thenReturn(writeStatement);
-		connector = new PostgresConnector(readDataSource, writeDataSource, 1, "");
+		when(readDataSource.getConnection()).thenReturn(readConnection);
+		when(readConnection.createStatement()).thenReturn(readStatement);
+		when(writeDataSource.getConnection()).thenReturn(writeConnection);
+		when(writeConnection.prepareStatement(Mockito.anyString())).thenReturn(writeStatement);
+		when(writeConnection.createStatement()).thenReturn(writeStatement);
+		connector = new PostgresConnector(readDataSource, writeDataSource);
 	}
 
 	@Test
@@ -65,16 +66,30 @@ public class PostgresConnectorTest {
 
 	@Test
 	public void whenExecuteRead_correctExecution_dataSourcedIsPassedToConsumer() throws SQLException {
-		Mockito.when(readStatement.executeQuery(Mockito.anyString())).thenReturn(resultSet);
+		when(readStatement.executeQuery(Mockito.anyString())).thenReturn(resultSet);
 
-		connector.execute("some select sql", (it) -> {
-			assertThat(it).isSameAs(resultSet);
-		});
+		connector.execute("some select sql", (it) -> assertThat(it).isSameAs(resultSet));
+	}
+
+	@Test
+	public void whenExecuteExisits_correctExecution_dataSourcedIsPassedToConsumer() throws SQLException {
+		when(readStatement.executeQuery(Mockito.anyString())).thenReturn(resultSet);
+		when(resultSet.getBoolean(1)).thenReturn(true);
+
+		connector.executeExist("some exist sql", (it) -> assertThat(it).isTrue());
+	}
+
+	@Test
+	public void whenExecuteCount_correctExecution_dataSourcedIsPassedToConsumer() throws SQLException {
+		when(readStatement.executeQuery(Mockito.anyString())).thenReturn(resultSet);
+		when(resultSet.getLong(1)).thenReturn(2L);
+
+		connector.executeCount("some count sql", (it) -> assertThat(it).isEqualTo(2L));
 	}
 
 	@Test
 	public void whenExecuteRead_errorOnExecution_exceptionThrown() throws SQLException {
-		Mockito.when(readStatement.executeQuery(Mockito.anyString())).thenThrow(RuntimeException.class);
+		when(readStatement.executeQuery(Mockito.anyString())).thenThrow(RuntimeException.class);
 
 		assertThatThrownBy(() -> {
 			connector.execute("some select sql", (a) -> {
@@ -103,7 +118,7 @@ public class PostgresConnectorTest {
 
 	@Test
 	public void whenExecuteWrite_errorOnExecution_exceptionThrown() throws SQLException {
-		Mockito.when(writeStatement.executeUpdate()).thenThrow(RuntimeException.class);
+		when(writeStatement.executeUpdate()).thenThrow(RuntimeException.class);
 
 		assertThatThrownBy(() -> connector.execute("some select sql")).isInstanceOf(PostgresConnectionException.class);
 	}
@@ -123,16 +138,14 @@ public class PostgresConnectorTest {
 
 	@Test
 	public void executeNextVal_correctExecution_dataSourcedIsPassedToConsumer() throws SQLException {
-		Mockito.when(writeStatement.executeQuery(Mockito.anyString())).thenReturn(resultSet);
+		when(writeStatement.executeQuery(Mockito.anyString())).thenReturn(resultSet);
 
-		connector.executeNextVal("some next val sql", (it) -> {
-			assertThat(it).isSameAs(resultSet);
-		});
+		connector.executeNextVal("some next val sql", (it) -> assertThat(it).isSameAs(resultSet));
 	}
 
 	@Test
 	public void executeNextVal_errorOnExecution_exceptionThrown() throws SQLException {
-		Mockito.when(writeStatement.executeQuery(Mockito.anyString())).thenThrow(RuntimeException.class);
+		when(writeStatement.executeQuery(Mockito.anyString())).thenThrow(RuntimeException.class);
 
 		assertThatThrownBy(() -> connector.executeNextVal("some select sql", (it) -> {
 		})).isInstanceOf(PostgresConnectionException.class);
