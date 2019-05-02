@@ -1,4 +1,4 @@
-package com.etermax.jsonb;
+package com.etermax.jsonb.connection;
 
 import static com.etermax.jsonb.exceptions.ExceptionCatcher.executeOrRuntime;
 

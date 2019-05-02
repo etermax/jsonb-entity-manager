@@ -1,9 +1,12 @@
-package com.etermax.jsonb;
+package com.etermax.jsonb.initializer;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.Collection;
+
+import com.etermax.jsonb.connection.PostgresConnector;
+import com.etermax.jsonb.tablenames.TableNamesResolver;
 
 public class PostgresInitializer {
 

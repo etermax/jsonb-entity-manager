@@ -1,4 +1,4 @@
-package com.etermax.jsonb;
+package com.etermax.jsonb.connection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -12,6 +12,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.etermax.jsonb.connection.PostgresConnector;
+import com.etermax.jsonb.tablenames.TableNamesResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("rawtypes")

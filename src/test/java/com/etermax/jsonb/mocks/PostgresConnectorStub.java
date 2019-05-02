@@ -21,7 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Stubber;
 
-import com.etermax.jsonb.PostgresConnector;
+import com.etermax.jsonb.connection.PostgresConnector;
 import com.etermax.jsonb.exceptions.PostgresConnectionException;
 
 public class PostgresConnectorStub {

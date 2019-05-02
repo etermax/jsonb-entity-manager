@@ -1,4 +1,4 @@
-package com.etermax.jsonb;
+package com.etermax.jsonb.initializer;
 
 import static java.lang.String.format;
 
@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.etermax.jsonb.mocks.PostgresConnectorStub;
+import com.etermax.jsonb.tablenames.TableNamesResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PostgresInitializerTest {

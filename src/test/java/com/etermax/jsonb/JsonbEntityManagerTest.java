@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.etermax.jsonb.domain.SomeJsonbEntity;
 import com.etermax.jsonb.mocks.PostgresConnectorStub;
+import com.etermax.jsonb.tablenames.TableNamesResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonbEntityManagerTest {
