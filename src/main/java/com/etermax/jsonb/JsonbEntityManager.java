@@ -9,16 +9,13 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.etermax.jsonb.connection.PostgresConnector;
 import com.etermax.jsonb.tablenames.TableNamesResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("rawtypes")
 public class JsonbEntityManager {
-	private static final Logger logger = LoggerFactory.getLogger(JsonbEntityManager.class);
+	public static final String ENTITY_FIELD = "entity";
 	private ObjectMapper objectMapper;
 	private PostgresConnector connector;
 	private TableNamesResolver tableNamesResolver;
@@ -60,7 +57,7 @@ public class JsonbEntityManager {
 		List<String> jsons = newArrayList();
 		connector.execute(query, resultSet -> executeOrRuntime(() -> {
 			while (resultSet.next()) {
-				jsons.add(resultSet.getString("entity"));
+				jsons.add(resultSet.getString(ENTITY_FIELD));
 			}
 		}));
 		return jsons.stream().map(json -> deserialize(clazz, json)).collect(toList());
@@ -77,13 +74,11 @@ public class JsonbEntityManager {
 	 */
 	public <T extends JsonbEntity> List<T> findListEntityResultOnWriteNode(Class<T> clazz, String query) {
 		List<String> jsons = newArrayList();
-		connector.executeOnWriteNode(query, rs -> {
-			executeOrRuntime(() -> {
-				while (rs.next()) {
-					jsons.add(rs.getString("entity"));
-				}
-			});
-		});
+		connector.executeOnWriteNode(query, rs -> executeOrRuntime(() -> {
+			while (rs.next()) {
+				jsons.add(rs.getString(ENTITY_FIELD));
+			}
+		}));
 		return jsons.stream().map(json -> deserialize(clazz, json)).collect(toList());
 	}
 
@@ -110,7 +105,7 @@ public class JsonbEntityManager {
 		Retriever<String> retriever = new Retriever<>();
 		connector.execute(query, rs -> executeOrRuntime(() -> {
 			if (rs.next()) {
-				retriever.set(rs.getString("entity"));
+				retriever.set(rs.getString(ENTITY_FIELD));
 			}
 		}));
 		return ofNullable(retriever.get()).map(element -> deserialize(clazz, element));
@@ -127,13 +122,11 @@ public class JsonbEntityManager {
 	 */
 	public <T extends JsonbEntity> Optional<T> findUniqueEntityResultOnWriteNode(Class<T> clazz, String query) {
 		Retriever<String> retriever = new Retriever<>();
-		connector.executeOnWriteNode(query, rs -> {
-			executeOrRuntime(() -> {
-				if (rs.next()) {
-					retriever.set(rs.getString("entity"));
-				}
-			});
-		});
+		connector.executeOnWriteNode(query, rs -> executeOrRuntime(() -> {
+			if (rs.next()) {
+				retriever.set(rs.getString(ENTITY_FIELD));
+			}
+		}));
 		return ofNullable(retriever.get()).map(element -> deserialize(clazz, element));
 	}
 

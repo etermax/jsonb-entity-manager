@@ -19,6 +19,7 @@ import com.zaxxer.hikari.HikariDataSource;
 public class PostgresConnector {
 	private static final String EXECUTING = "PG Executing: ";
 	private static final Logger logger = LoggerFactory.getLogger(PostgresConnector.class);
+	public static final String ERROR = "ERROR ";
 	private HikariDataSource readDataSource;
 	private HikariDataSource writeDataSource;
 	private int queryTimeout;
@@ -43,7 +44,7 @@ public class PostgresConnector {
 				consumer.accept(rs);
 			}
 		} catch (Exception e) {
-			logger.error("ERROR " + EXECUTING + query, e);
+			logger.error(ERROR + EXECUTING + query, e);
 			throw new PostgresConnectionException(e);
 		}
 		long finalTime = ZonedDateTime.now().toInstant().toEpochMilli();
@@ -57,7 +58,7 @@ public class PostgresConnector {
 			statement.setQueryTimeout(queryTimeout);
 			statement.executeUpdate();
 		} catch (Exception e) {
-			logger.error("ERROR " + EXECUTING + query, e);
+			logger.error(ERROR + EXECUTING + query, e);
 			throw new PostgresConnectionException(e);
 		}
 		long finalTime = ZonedDateTime.now().toInstant().toEpochMilli();
@@ -72,7 +73,7 @@ public class PostgresConnector {
 				consumer.accept(rs);
 			}
 		} catch (Exception e) {
-			logger.error("ERROR " + url + " " + EXECUTING + query, e);
+			logger.error(ERROR + url + " " + EXECUTING + query, e);
 			throw new PostgresConnectionException(e);
 		}
 		long finalTime = DateTime.now().getMillis();
