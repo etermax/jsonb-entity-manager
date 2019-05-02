@@ -54,7 +54,7 @@ public class JsonbEntityManager {
 	 * @param query the query to retrieve the JsonbEntities
 	 * @return the list with all matching objects
 	 */
-	public <T> List<T> findListEntityResult(Class<T> clazz, String query) {
+	public <T extends JsonbEntity> List<T> findListEntityResult(Class<T> clazz, String query) {
 		List<String> jsons = newArrayList();
 		connector.execute(query, resultSet -> executeOrRuntime(() -> {
 			while (resultSet.next()) {
@@ -73,7 +73,7 @@ public class JsonbEntityManager {
 	 * @param query the query to retrieve the JsonbEntities
 	 * @return the list with all matching objects
 	 */
-	public <T> List<T> findListEntityResultOnWriteNode(Class<T> clazz, String query) {
+	public <T extends JsonbEntity> List<T> findListEntityResultOnWriteNode(Class<T> clazz, String query) {
 		List<String> jsons = newArrayList();
 		connector.executeOnWriteNode(query, rs -> {
 			executeOrRuntime(() -> {
@@ -104,14 +104,14 @@ public class JsonbEntityManager {
 	 * @param query The query to find a unique instance for your object
 	 * @return one unique result for the class
 	 */
-	public <T> T findUniqueEntityResult(Class<T> clazz, String query) {
+	public <T extends JsonbEntity> Optional<T> findUniqueEntityResult(Class<T> clazz, String query) {
 		Retriever<String> retriever = new Retriever<>();
 		connector.execute(query, rs -> executeOrRuntime(() -> {
 			if (rs.next()) {
 				retriever.set(rs.getString("entity"));
 			}
 		}));
-		return retriever.get() == null ? null : deserialize(clazz, retriever.get());
+		return ofNullable(retriever.get()).map(element -> deserialize(clazz, element));
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class JsonbEntityManager {
 	 * @param query The query to find a unique instance for your object
 	 * @return one unique result for the class
 	 */
-	public <T extends JsonbEntity> T findUniqueEntityResultOnWriteNode(Class<T> clazz, String query) {
+	public <T extends JsonbEntity> Optional<T> findUniqueEntityResultOnWriteNode(Class<T> clazz, String query) {
 		Retriever<String> retriever = new Retriever<>();
 		connector.executeOnWriteNode(query, rs -> {
 			executeOrRuntime(() -> {
@@ -132,7 +132,7 @@ public class JsonbEntityManager {
 				}
 			});
 		});
-		return retriever.get() == null ? null : deserialize(clazz, retriever.get());
+		return ofNullable(retriever.get()).map(element -> deserialize(clazz, element));
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class JsonbEntityManager {
 	 * @param clazz The class that will be deserialized to the parametrized type
 	 * @return the list with all persisted objects
 	 */
-	public <T> List<T> findAll(Class<T> clazz) {
+	public <T extends JsonbEntity> List<T> findAll(Class<T> clazz) {
 		String query = "SELECT * FROM %s;";
 		return findListEntityResult(clazz, format(query, getTableName(clazz)));
 	}
@@ -155,9 +155,9 @@ public class JsonbEntityManager {
 	 * @param id    the assigned id on save
 	 * @return an optional of the object. It will be empty if the id is wrong
 	 */
-	public <T> Optional<T> findById(Class<T> clazz, long id) {
+	public <T extends JsonbEntity> Optional<T> findById(Class<T> clazz, long id) {
 		String saveQuery = "select id, entity from %s where id = %d;";
-		return ofNullable(findUniqueEntityResult(clazz, format(saveQuery, getTableName(clazz), id)));
+		return findUniqueEntityResult(clazz, format(saveQuery, getTableName(clazz), id));
 	}
 
 	public <T> T findPrimitiveResult(String query) {

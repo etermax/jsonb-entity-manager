@@ -117,9 +117,10 @@ public class JsonbEntityManagerTest {
 		String query = "SELECT * FROM test_table where id = 1";
 		connectorMock.whenExecuteQueryThenReturnResult(query, serialize(entity));
 
-		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResult(SomeJsonbEntity.class, query);
+		Optional<SomeJsonbEntity> entityResult = entityManager.findUniqueEntityResult(SomeJsonbEntity.class, query);
 
-		assertThat(entityResult).isEqualTo(entity);
+		assertThat(entityResult).isPresent();
+		assertThat(entityResult.get()).isEqualTo(entity);
 		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
 	}
 
@@ -164,9 +165,9 @@ public class JsonbEntityManagerTest {
 		String query = "SELECT * FROM test_table where id = 1";
 		connectorMock.whenExecuteQueryThenReturnResult(query);
 
-		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResult(SomeJsonbEntity.class, query);
+		Optional<SomeJsonbEntity> entityResult = entityManager.findUniqueEntityResult(SomeJsonbEntity.class, query);
 
-		assertThat(entityResult).isNull();
+		assertThat(entityResult).isNotPresent();
 		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
 	}
 
@@ -176,9 +177,10 @@ public class JsonbEntityManagerTest {
 		String query = "SELECT * FROM test_table where id = 1";
 		connectorMock.whenExecuteOnWritingNodeQueryThenReturnResult(query, serialize(entity));
 
-		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResultOnWriteNode(SomeJsonbEntity.class, query);
+		Optional<SomeJsonbEntity> entityResult = entityManager.findUniqueEntityResultOnWriteNode(SomeJsonbEntity.class, query);
 
-		assertThat(entityResult).isEqualTo(entity);
+		assertThat(entityResult).isPresent();
+		assertThat(entityResult.get()).isEqualTo(entity);
 		verify(connectorMock.getMock(), Mockito.times(1)).executeOnWriteNode(anyString(), any(Consumer.class));
 	}
 
@@ -187,9 +189,9 @@ public class JsonbEntityManagerTest {
 		String query = "SELECT * FROM test_table where id = 1";
 		connectorMock.whenExecuteOnWritingNodeQueryThenReturnResult(query);
 
-		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResultOnWriteNode(SomeJsonbEntity.class, query);
+		Optional<SomeJsonbEntity> entityResult = entityManager.findUniqueEntityResultOnWriteNode(SomeJsonbEntity.class, query);
 
-		assertThat(entityResult).isNull();
+		assertThat(entityResult).isNotPresent();
 		verify(connectorMock.getMock(), Mockito.times(1)).executeOnWriteNode(anyString(), any(Consumer.class));
 	}
 
