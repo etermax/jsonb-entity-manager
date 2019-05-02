@@ -43,17 +43,17 @@ public class PostgresConnectorStub {
 
 	}
 
-	public void whenExecuteOnWritingNodeQueryThenReturnResult(String expectedQuery, String... values) {
+	public void whenExecuteOnWritingNodeQueryThenReturnResult(String expectedQuery, Object... values) {
 		Stubber stubbedAnswer = getStubbedAnswer(expectedQuery, values);
 		stubbedAnswer.when(connector).executeOnWriteNode(Mockito.anyString(), Mockito.any(Consumer.class));
 	}
 
-	public void whenExecuteQueryThenReturnResult(String expectedQuery, String... values) {
+	public void whenExecuteQueryThenReturnResult(String expectedQuery, Object... values) {
 		Stubber stubbedAnswer = getStubbedAnswer(expectedQuery, values);
 		stubbedAnswer.when(connector).execute(Mockito.anyString(), Mockito.any(Consumer.class));
 	}
 
-	private Stubber getStubbedAnswer(String expectedQuery, String[] values) {
+	private Stubber getStubbedAnswer(String expectedQuery, Object[] values) {
 		return doAnswer(it -> {
 			nextValQuery = (String) it.getArguments()[0];
 			if (nextValQuery.equals(expectedQuery)) {
@@ -61,7 +61,11 @@ public class PostgresConnectorStub {
 
 				stubNextMethod(resultSet, values);
 
-				stubGetStringMethod(resultSet, values);
+				if (values.length > 0 && values[0] instanceof String) {
+					stubGetStringMethod(resultSet, values);
+				}
+
+				stubGetObjectMethod(resultSet, values);
 
 				((Consumer) it.getArguments()[1]).accept(resultSet);
 			} else {
@@ -71,16 +75,24 @@ public class PostgresConnectorStub {
 		});
 	}
 
-	private void stubGetStringMethod(ResultSet resultSet, String[] values) throws SQLException {
-		Stubber jsonStubber = doReturn(values[0]);
+	private void stubGetStringMethod(ResultSet resultSet, Object[] values) throws SQLException {
+		Stubber jsonStubber = values.length == 0 ? doReturn(null) : doReturn(values[0]);
 		rangeClosed(1, values.length - 1).asLongStream().forEach((i) -> {
 			jsonStubber.doReturn(values[(int) i]);
 		});
 		jsonStubber.when(resultSet).getString("entity");
 	}
 
-	private void stubNextMethod(ResultSet resultSet, String[] values) throws SQLException {
-		Stubber nextStubber = doReturn(true);
+	private void stubGetObjectMethod(ResultSet resultSet, Object[] values) throws SQLException {
+		Stubber jsonStubber = values.length == 0 ? doReturn(null) : doReturn(values[0]);
+		rangeClosed(1, values.length - 1).asLongStream().forEach((i) -> {
+			jsonStubber.doReturn(values[(int) i]);
+		});
+		jsonStubber.when(resultSet).getObject(1);
+	}
+
+	private void stubNextMethod(ResultSet resultSet, Object[] values) throws SQLException {
+		Stubber nextStubber = doReturn(values.length > 0);
 		rangeClosed(0, values.length - 1).asLongStream().forEach((i) -> {
 			nextStubber.doReturn(i != values.length - 1);
 		});

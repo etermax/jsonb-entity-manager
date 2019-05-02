@@ -106,13 +106,11 @@ public class JsonbEntityManager {
 	 */
 	public <T> T findUniqueEntityResult(Class<T> clazz, String query) {
 		Retriever<String> retriever = new Retriever<>();
-		connector.execute(query, rs -> {
-			executeOrRuntime(() -> {
-				if (rs.next()) {
-					retriever.set(rs.getString("entity"));
-				}
-			});
-		});
+		connector.execute(query, rs -> executeOrRuntime(() -> {
+			if (rs.next()) {
+				retriever.set(rs.getString("entity"));
+			}
+		}));
 		return retriever.get() == null ? null : deserialize(clazz, retriever.get());
 	}
 

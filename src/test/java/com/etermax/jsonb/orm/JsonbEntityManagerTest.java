@@ -7,9 +7,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -64,13 +64,27 @@ public class JsonbEntityManagerTest {
 	public void findListEntityResult_twoEntitiesPersisted_thenReturnsThePersistedEntities() {
 		SomeJsonbEntity entity = new SomeJsonbEntity(1l, "otherIndexedValue");
 		SomeJsonbEntity entity2 = new SomeJsonbEntity(2l, "anIndexedValue");
-		String query = "SELECT * FROM test_table";
+		String query = "SELECT * FROM test_table where id > 13";
 		connectorMock.whenExecuteQueryThenReturnResult(query, serialize(entity), serialize(entity2));
 
 		List<SomeJsonbEntity> listEntityResult = entityManager.findListEntityResult(SomeJsonbEntity.class, query);
 
-		Assertions.assertThat(listEntityResult).isNotEmpty();
-		Assertions.assertThat(listEntityResult).containsExactly(entity, entity2);
+		assertThat(listEntityResult).isNotEmpty();
+		assertThat(listEntityResult).containsExactly(entity, entity2);
+		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
+		verify(connectorMock.getMock(), Mockito.times(0)).executeOnWriteNode(anyString(), any(Consumer.class));
+	}
+
+	@Test
+	public void findAll_callTheFindListWithTheCorrectSelect() {
+		SomeJsonbEntity entity = new SomeJsonbEntity(1l, "otherIndexedValue");
+		SomeJsonbEntity entity2 = new SomeJsonbEntity(2l, "anIndexedValue");
+		connectorMock.whenExecuteQueryThenReturnResult("SELECT * FROM test_table;", serialize(entity), serialize(entity2));
+
+		List<SomeJsonbEntity> listEntityResult = entityManager.findAll(SomeJsonbEntity.class);
+
+		assertThat(listEntityResult).isNotEmpty();
+		assertThat(listEntityResult).containsExactly(entity, entity2);
 		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
 		verify(connectorMock.getMock(), Mockito.times(0)).executeOnWriteNode(anyString(), any(Consumer.class));
 	}
@@ -84,8 +98,8 @@ public class JsonbEntityManagerTest {
 
 		List<SomeJsonbEntity> listEntityResult = entityManager.findListEntityResultOnWriteNode(SomeJsonbEntity.class, query);
 
-		Assertions.assertThat(listEntityResult).isNotEmpty();
-		Assertions.assertThat(listEntityResult).containsExactly(entity, entity2);
+		assertThat(listEntityResult).isNotEmpty();
+		assertThat(listEntityResult).containsExactly(entity, entity2);
 		verify(connectorMock.getMock(), Mockito.times(0)).execute(anyString(), any(Consumer.class));
 		verify(connectorMock.getMock(), Mockito.times(1)).executeOnWriteNode(anyString(), any(Consumer.class));
 	}
@@ -95,6 +109,88 @@ public class JsonbEntityManagerTest {
 		entityManager.delete(SomeJsonbEntity.class, 3l);
 
 		connectorMock.verfyExecute("delete from test_table where id=3");
+	}
+
+	@Test
+	public void findUniqueEntityResult_existentEntityReturnsObject() {
+		SomeJsonbEntity entity = new SomeJsonbEntity(1l, "otherIndexedValue");
+		String query = "SELECT * FROM test_table where id = 1";
+		connectorMock.whenExecuteQueryThenReturnResult(query, serialize(entity));
+
+		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResult(SomeJsonbEntity.class, query);
+
+		assertThat(entityResult).isEqualTo(entity);
+		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
+	}
+
+	@Test
+	public void findById_findsUniqueEntityResult() {
+		SomeJsonbEntity entity = new SomeJsonbEntity(1l, "otherIndexedValue");
+		connectorMock.whenExecuteQueryThenReturnResult("select id, entity from test_table where id = 1;", serialize(entity));
+
+		Optional<SomeJsonbEntity> entityResult = entityManager.findById(SomeJsonbEntity.class, 1L);
+
+		assertThat(entityResult).isPresent();
+		assertThat(entityResult.get()).isEqualTo(entity);
+		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
+	}
+
+	@Test
+	public void findPrimitiveResult_countSample_returnsASimpleString() {
+		String query = "select count(*) from test_table where id > 1;";
+		connectorMock.whenExecuteQueryThenReturnResult(query, 33L);
+
+		Long count = entityManager.findPrimitiveResult(query);
+
+		assertThat(count).isNotNull();
+		assertThat(count).isEqualTo(33L);
+		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
+	}
+
+	@Test
+	public void findPrimitiveListResult_selectIdsSample() {
+		String query = "select id from test_table where id > 1;";
+		connectorMock.whenExecuteQueryThenReturnResult(query, 12L, 11L, 344L);
+
+		List<Long> ids = entityManager.findPrimitiveListResult(query);
+
+		assertThat(ids).isNotEmpty();
+		assertThat(ids).containsExactly(12L, 11L, 344L);
+		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
+	}
+
+	@Test
+	public void findUniqueEntityResult_nonExistentEntityReturnsObject() {
+		String query = "SELECT * FROM test_table where id = 1";
+		connectorMock.whenExecuteQueryThenReturnResult(query);
+
+		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResult(SomeJsonbEntity.class, query);
+
+		assertThat(entityResult).isNull();
+		verify(connectorMock.getMock(), Mockito.times(1)).execute(anyString(), any(Consumer.class));
+	}
+
+	@Test
+	public void findUniqueEntityResultOnWriteNode_existentEntityReturnsObject() {
+		SomeJsonbEntity entity = new SomeJsonbEntity(1l, "otherIndexedValue");
+		String query = "SELECT * FROM test_table where id = 1";
+		connectorMock.whenExecuteOnWritingNodeQueryThenReturnResult(query, serialize(entity));
+
+		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResultOnWriteNode(SomeJsonbEntity.class, query);
+
+		assertThat(entityResult).isEqualTo(entity);
+		verify(connectorMock.getMock(), Mockito.times(1)).executeOnWriteNode(anyString(), any(Consumer.class));
+	}
+
+	@Test
+	public void findUniqueEntityResultOnWriteNode_nonExistentEntityReturnsObject() {
+		String query = "SELECT * FROM test_table where id = 1";
+		connectorMock.whenExecuteOnWritingNodeQueryThenReturnResult(query);
+
+		SomeJsonbEntity entityResult = entityManager.findUniqueEntityResultOnWriteNode(SomeJsonbEntity.class, query);
+
+		assertThat(entityResult).isNull();
+		verify(connectorMock.getMock(), Mockito.times(1)).executeOnWriteNode(anyString(), any(Consumer.class));
 	}
 
 	private String serialize(SomeJsonbEntity entity) {
