@@ -1,6 +1,6 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
-import static com.etermax.jsonb.orm.exceptions.ExceptionCatcher.executeOrRuntime;
+import static com.etermax.jsonb.exceptions.ExceptionCatcher.executeOrRuntime;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +13,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.etermax.jsonb.orm.exceptions.PostgresConnectionException;
+import com.etermax.jsonb.exceptions.PostgresConnectionException;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class PostgresConnector {

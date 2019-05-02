@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm.mocks;
+package com.etermax.jsonb.mocks;
 
 import static java.util.stream.IntStream.rangeClosed;
 import static org.mockito.Mockito.doAnswer;
@@ -15,8 +15,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Stubber;
 
-import com.etermax.jsonb.orm.PostgresConnector;
-import com.etermax.jsonb.orm.exceptions.PostgresConnectionException;
+import com.etermax.jsonb.PostgresConnector;
+import com.etermax.jsonb.exceptions.PostgresConnectionException;
 
 public class PostgresConnectorStub {
 	private String nextValQuery;

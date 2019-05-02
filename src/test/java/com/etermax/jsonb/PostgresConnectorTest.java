@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.etermax.jsonb.orm.exceptions.PostgresConnectionException;
+import com.etermax.jsonb.exceptions.PostgresConnectionException;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class PostgresConnectorTest {

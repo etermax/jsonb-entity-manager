@@ -1,6 +1,6 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
-import static com.etermax.jsonb.orm.exceptions.ExceptionCatcher.executeOrRuntime;
+import static com.etermax.jsonb.exceptions.ExceptionCatcher.executeOrRuntime;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;

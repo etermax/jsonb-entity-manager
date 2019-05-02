@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm.exceptions;
+package com.etermax.jsonb.exceptions;
 
 public class PostgresConnectionException extends RuntimeException {
 

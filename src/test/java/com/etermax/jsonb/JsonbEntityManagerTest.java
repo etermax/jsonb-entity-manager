@@ -1,6 +1,6 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
-import static com.etermax.jsonb.orm.exceptions.ExceptionCatcher.executeOrRuntime;
+import static com.etermax.jsonb.exceptions.ExceptionCatcher.executeOrRuntime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -15,8 +15,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.etermax.jsonb.orm.domain.SomeJsonbEntity;
-import com.etermax.jsonb.orm.mocks.PostgresConnectorStub;
+import com.etermax.jsonb.domain.SomeJsonbEntity;
+import com.etermax.jsonb.mocks.PostgresConnectorStub;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonbEntityManagerTest {
@@ -29,7 +29,7 @@ public class JsonbEntityManagerTest {
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		TableNamesResolver tableNamesResolver = new TableNamesResolver("com.etermax.jsonb.orm");
+		TableNamesResolver tableNamesResolver = new TableNamesResolver("com.etermax.jsonb");
 		connectorMock = new PostgresConnectorStub();
 		objectMapper = new ObjectMapper();
 		entityManager = new JsonbEntityManager(objectMapper, connectorMock.getMock(), tableNamesResolver);

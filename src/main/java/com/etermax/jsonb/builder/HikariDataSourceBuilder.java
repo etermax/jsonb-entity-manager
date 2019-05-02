@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm.builder;
+package com.etermax.jsonb.builder;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

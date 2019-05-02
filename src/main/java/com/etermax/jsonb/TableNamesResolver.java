@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
 import static com.google.common.collect.Maps.newHashMap;
 

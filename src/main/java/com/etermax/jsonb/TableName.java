@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;

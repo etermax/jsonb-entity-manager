@@ -1,11 +1,11 @@
-package com.etermax.jsonb.orm.domain;
+package com.etermax.jsonb.domain;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import com.etermax.jsonb.orm.JsonbEntity;
-import com.etermax.jsonb.orm.TableName;
+import com.etermax.jsonb.JsonbEntity;
+import com.etermax.jsonb.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @TableName(value = "test_table", indexes = { " -> 'indexedValue'" })

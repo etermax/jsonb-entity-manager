@@ -1,4 +1,4 @@
-package com.etermax.jsonb.orm;
+package com.etermax.jsonb;
 
 public interface JsonbEntity {
 
