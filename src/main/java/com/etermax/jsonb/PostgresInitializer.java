@@ -19,17 +19,6 @@ public class PostgresInitializer {
 	public void initialize() {
 		Collection<String> tableNames = getTableNames();
 		tableNames.forEach(this::createTable);
-		createByteArraysTable();
-	}
-
-	private void createByteArraysTable() {
-		String queryExistTable = "SELECT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE  TABLE_NAME = 'bytes_files')";
-		String query = "CREATE TABLE bytes_files (id bigint, name text, b bytea, CONSTRAINT bytes_files_pkey PRIMARY KEY (id)) ";
-		connector.executeExist(queryExistTable, exist -> {
-			if (!exist) {
-				connector.execute(query);
-			}
-		});
 	}
 
 	private void createTable(String tableName) {
