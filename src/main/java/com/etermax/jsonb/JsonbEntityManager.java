@@ -172,15 +172,13 @@ public class JsonbEntityManager {
 		return retriever.get();
 	}
 
-	public List findPrimitiveListResult(String query) {
-		List<Object> list = newArrayList();
-		connector.execute(query, rs -> {
-			executeOrRuntime(() -> {
-				while (rs.next()) {
-					list.add(rs.getObject(1));
-				}
-			});
-		});
+	public <T> List<T> findPrimitiveListResult(String query) {
+		List<T> list = newArrayList();
+		connector.execute(query, rs -> executeOrRuntime(() -> {
+			while (rs.next()) {
+				list.add((T) rs.getObject(1));
+			}
+		}));
 		return list;
 	}
 

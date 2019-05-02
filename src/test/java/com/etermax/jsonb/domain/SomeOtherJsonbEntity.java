@@ -9,7 +9,7 @@ import com.etermax.jsonb.tablenames.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @TableName(value = "other_test_table", indexes = { " -> 'indexedValue1'", " -> 'indexedValue2'" })
-public class SomeOtherWithtwoIndexesJsonbEntity implements JsonbEntity {
+public class SomeOtherJsonbEntity implements JsonbEntity {
 
 	@JsonProperty
 	private Long id;
