@@ -34,19 +34,6 @@ public class SomeJsonbEntity implements JsonbEntity {
 	@JsonProperty
 	private String indexedValue;
 
-	public SomeJsonbEntity() {
-
-	}
-
-	public SomeJsonbEntity(Long id, String indexedValue) {
-		this.id = id;
-		this.indexedValue = indexedValue;
-	}
-
-	public SomeJsonbEntity(String indexedValue) {
-		this.indexedValue = indexedValue;
-	}
-
 	@Override
 	public Long getId() {
 		return id;
@@ -55,6 +42,14 @@ public class SomeJsonbEntity implements JsonbEntity {
 	@Override
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getIndexedValue() {
+		return indexedValue;
+	}
+
+	public void setIndexedValue(String indexedValue) {
+		this.indexedValue = indexedValue;
 	}
 
 }
