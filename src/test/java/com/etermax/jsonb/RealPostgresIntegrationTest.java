@@ -30,7 +30,12 @@ public class RealPostgresIntegrationTest {
 	@BeforeClass
 	public static void setUpPostgres() {
 		PostgreSQLContainer postgres = new PostgreSQLContainer<>();
-		initializeDatabaseAndEntityManager(postgres);
+		postgres.start();
+		HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource().withUrl(postgres.getJdbcUrl()).withPoolName("test")
+				.withUser(postgres.getUsername()).withPassword(postgres.getPassword()).build();
+		connector = new PostgresConnector(hikariDataSource, hikariDataSource);
+		new PostgresInitializer(connector, tableNamesResolver).initialize();
+		entityManager = new JsonbEntityManager(objectMapper, connector, tableNamesResolver);
 	}
 
 	@Before
@@ -165,14 +170,4 @@ public class RealPostgresIntegrationTest {
 
 		assertThat(entityManager.findById(SomeJsonbEntity.class, entity.getId())).isNotPresent();
 	}
-
-	private static void initializeDatabaseAndEntityManager(PostgreSQLContainer postgres) {
-		postgres.start();
-		HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource().withUrl(postgres.getJdbcUrl()).withPoolName("test")
-				.withUser(postgres.getUsername()).withPassword(postgres.getPassword()).build();
-		connector = new PostgresConnector(hikariDataSource, hikariDataSource);
-		new PostgresInitializer(connector, tableNamesResolver).initialize();
-		entityManager = new JsonbEntityManager(objectMapper, connector, tableNamesResolver);
-	}
-
 }
