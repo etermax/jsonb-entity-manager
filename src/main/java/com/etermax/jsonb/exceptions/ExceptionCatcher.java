@@ -8,41 +8,41 @@ public class ExceptionCatcher {
 	}
 
 	public static <E> E executeOrRuntime(ThrowableSupplier<E> supplier) {
-		return executeOrRuntime(supplier, JsonbException.class);
+		return executeOrRuntime(supplier, RuntimeException.class);
 	}
 
 	public static void executeOrRuntime(ThrowableConsumer consumer) {
-		executeOrRuntime(consumer, JsonbException.class);
+		executeOrRuntime(consumer, RuntimeException.class);
 	}
 
-	public static <E> E executeOrRuntime(ThrowableSupplier<E> supplier, Class<? extends JsonbException> exceptionClass) {
+	public static <E> E executeOrRuntime(ThrowableSupplier<E> supplier, Class<? extends RuntimeException> exceptionClass) {
 		return executeOrRuntime(supplier, exceptionClass, "");
 	}
 
-	public static void executeOrRuntime(ThrowableConsumer consumer, Class<? extends JsonbException> exceptionClass) {
+	public static void executeOrRuntime(ThrowableConsumer consumer, Class<? extends RuntimeException> exceptionClass) {
 		executeOrRuntime(consumer, exceptionClass, "");
 	}
 
-	public static <E> E executeOrRuntime(ThrowableSupplier<E> supplier, Class<? extends JsonbException> exceptionClass, String message) {
+	public static <E> E executeOrRuntime(ThrowableSupplier<E> supplier, Class<? extends RuntimeException> exceptionClass, String message) {
 		try {
 			return supplier.supply();
 		} catch (Exception e) {
 			try {
 				throw exceptionClass.getConstructor(Exception.class).newInstance(e);
 			} catch (Exception e1) {
-				throw new JsonbException(message, e1);
+				throw new RuntimeException(message, e1);
 			}
 		}
 	}
 
-	public static void executeOrRuntime(ThrowableConsumer consumer, Class<? extends JsonbException> exceptionClass, String message) {
+	public static void executeOrRuntime(ThrowableConsumer consumer, Class<? extends RuntimeException> exceptionClass, String message) {
 		try {
 			consumer.execute();
 		} catch (Exception e) {
 			try {
 				throw exceptionClass.getConstructor(Exception.class).newInstance(e);
 			} catch (Exception e1) {
-				throw new JsonbException(message, e1);
+				throw new RuntimeException(message, e1);
 			}
 		}
 	}

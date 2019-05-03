@@ -9,8 +9,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 
-import com.etermax.jsonb.exceptions.JsonbException;
-
 public class TableNamesResolver {
 
 	public static final String SEQUENCE_PREFIX = "seq_";
@@ -33,7 +31,7 @@ public class TableNamesResolver {
 	public String getTableName(Class<?> clazz) {
 		String tableName = tableNames.get(clazz);
 		if (StringUtils.isBlank(tableName)) {
-			throw new JsonbException(MISSING_TABLE_NAME);
+			throw new RuntimeException(MISSING_TABLE_NAME);
 		}
 		return tableName;
 	}

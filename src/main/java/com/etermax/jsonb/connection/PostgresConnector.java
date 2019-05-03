@@ -1,6 +1,7 @@
 package com.etermax.jsonb.connection;
 
 import static com.etermax.jsonb.exceptions.ExceptionCatcher.executeOrRuntime;
+import static java.lang.String.format;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,9 +18,9 @@ import com.etermax.jsonb.exceptions.PostgresConnectionException;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class PostgresConnector {
-	private static final String EXECUTING = "PG Executing: ";
 	private static final Logger logger = LoggerFactory.getLogger(PostgresConnector.class);
-	public static final String ERROR = "ERROR ";
+	public static final String ERROR = "ERROR PG Executing: ";
+	private static final String LOG_MESSAGE = "%s time: %d %s PG Executing: %s";
 	private HikariDataSource readDataSource;
 	private HikariDataSource writeDataSource;
 	private int queryTimeout;
@@ -44,11 +45,11 @@ public class PostgresConnector {
 				consumer.accept(rs);
 			}
 		} catch (Exception e) {
-			logger.error(ERROR + EXECUTING + query, e);
+			logError(query, e);
 			throw new PostgresConnectionException(e);
 		}
 		long finalTime = ZonedDateTime.now().toInstant().toEpochMilli();
-		logger.info(" read time: " + (finalTime - initialTime) + EXECUTING + query);
+		logInfo((finalTime - initialTime), "read", "read datasource", query);
 
 	}
 
@@ -58,11 +59,11 @@ public class PostgresConnector {
 			statement.setQueryTimeout(queryTimeout);
 			statement.executeUpdate();
 		} catch (Exception e) {
-			logger.error(ERROR + EXECUTING + query, e);
+			logError(query, e);
 			throw new PostgresConnectionException(e);
 		}
 		long finalTime = ZonedDateTime.now().toInstant().toEpochMilli();
-		logger.info(" write time: " + (finalTime - initialTime) + EXECUTING + query);
+		logInfo((finalTime - initialTime), "write", "write datasource", query);
 	}
 
 	public void executeOnWriteNode(String query, Consumer<ResultSet> consumer) {
@@ -73,12 +74,22 @@ public class PostgresConnector {
 				consumer.accept(rs);
 			}
 		} catch (Exception e) {
-			logger.error(ERROR + url + " " + EXECUTING + query, e);
+			logError(query, e);
 			throw new PostgresConnectionException(e);
 		}
 		long finalTime = DateTime.now().getMillis();
-		logger.info(" read time: " + (finalTime - initialTime) + " " + url + " " + EXECUTING + query);
+		logInfo((finalTime - initialTime), "read", "write datasource", query);
 
+	}
+
+	private void logInfo(long time, String opperationType, String overDataSource, String query) {
+		String info = format(LOG_MESSAGE, opperationType, time, overDataSource, query);
+		logger.info(info);
+	}
+
+	private void logError(String query, Exception e) {
+		String error = ERROR + query;
+		logger.error(error, e);
 	}
 
 	public void executeNextVal(String query, Consumer<ResultSet> consumer) {
