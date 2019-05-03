@@ -33,7 +33,7 @@ public class RealPostgresIntegrationTest {
 		postgres.start();
 		HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource().withUrl(postgres.getJdbcUrl()).withPoolName("test")
 				.withUser(postgres.getUsername()).withPassword(postgres.getPassword()).build();
-		connector = new PostgresConnector(hikariDataSource, hikariDataSource);
+		connector = new PostgresConnector(hikariDataSource);
 		new PostgresInitializer(connector, tableNamesResolver).initialize();
 		entityManager = new JsonbEntityManager(objectMapper, connector, tableNamesResolver);
 	}

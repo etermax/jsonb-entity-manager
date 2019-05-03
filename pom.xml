@@ -5,15 +5,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.etermax.jsonb.orm</groupId>
-	<artifactId>jsonb-orm</artifactId>
+	<artifactId>jsonb-entity-manager</artifactId>
 	<version>1.0-SNAPSHOT</version>
 
-	<name>jsonb-orm</name>
+	<name>jsonb-entity-manager</name>
 
 	<properties>
-
 		<java.compiler.version>1.8</java.compiler.version>
-
 	</properties>
 
 	<distributionManagement>
@@ -31,11 +29,6 @@
 
 
 	<dependencies>
-		<dependency>
-			<groupId>com.jakewharton.retrofit</groupId>
-			<artifactId>retrofit2-rxjava2-adapter</artifactId>
-			<version>1.0.0</version>
-		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

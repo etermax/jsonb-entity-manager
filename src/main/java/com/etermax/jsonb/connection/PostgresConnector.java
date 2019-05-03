@@ -26,6 +26,10 @@ public class PostgresConnector {
 	private int queryTimeout;
 	private String url;
 
+	public PostgresConnector(HikariDataSource dataSource) {
+		this(dataSource, dataSource, 1, "");
+	}
+
 	public PostgresConnector(HikariDataSource readDataSource, HikariDataSource writeDataSource) {
 		this(readDataSource, writeDataSource, 1, "");
 	}
