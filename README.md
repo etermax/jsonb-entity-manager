@@ -4,7 +4,7 @@ Entity manager provides a simple way to persist and retrieve objects from postgr
 ## Getting Started
 
 The entity manager provides you of an easy way to persist and retrieve objects serialized to postgres jsonb structure:
-```
+```java
 SomeJsonbEntity entity = new SomeJsonbEntity("test");
 
 entityManager.save(entity);
@@ -23,7 +23,7 @@ Java version should be 8 or grather
 
 The class will need to be marked with the TableName annotation that provides the tablename and the indexes needed for the initializer to create the structure:
 
-```
+```java
 
 @TableName(value = "test_table", indexes = { " -> 'indexedValue'" })
 public class SomeJsonbEntity implements JsonbEntity {
@@ -62,7 +62,7 @@ public class SomeJsonbEntity implements JsonbEntity {
 ```
 The initializer then will usage the table name info to work
 		
-```
+```java
 PostgresConnector connector = new PostgresConnector(readDataSource, writingDataSource);
 PostgresInitializer initializer = new PostgresInitializer(connector, tableNamesResolver);
 initializer.initialize();
@@ -72,7 +72,7 @@ initializer.initialize();
 ### Installing
 
 First add the dependency:
-```
+```xml
 		<dependency>
 			<groupId>com.etermax.jsonb.orm</groupId>
 			<artifactId>jsonb-entity-manager</artifactId>
@@ -80,13 +80,13 @@ First add the dependency:
 		</dependency>
 ```
 or gradle
-```
+```yml
 compile "com.etermax.jsonb.orm:jsonb-entity-manager:1.0-SNAPSHOT"
 
 ```
 Then you will need to create  the HikariDataSource (we choose this because it allows to reset connections and scale your reading nodes behind the balancer)
 
-```
+```java
 HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource()
     .withUrl(postgres.getJdbcUrl())
     .withPoolName("test")
@@ -97,7 +97,7 @@ HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource()
 ```
 
 The next step is to create the Postgres connector and the TableNameResolver (this las one recieves the package to scan the annotated classes)
-```
+```java
 PostgresConnector connector = new PostgresConnector(readHikariDataSource, writegHikariDataSource);
 
 TableNamesResolver tableNamesResolver = new TableNamesResolver("com.your.jsonb.entities.package");
