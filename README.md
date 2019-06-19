@@ -107,15 +107,15 @@ JsonbEntityManager entityManager = new JsonbEntityManager(new ObjectMapper(), co
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/etermax/jsonb-entity-manager/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Alejandra Juarez D'Aquino** - *Initial work* - [Jsonb Entity Manager](https://github.com/jsonb-entity-manager)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/etermax/jsonb-entity-manager/contributors) who participated in this project.
 
 ## License
 
