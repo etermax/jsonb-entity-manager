@@ -29,12 +29,23 @@ public class RealPostgresIntegrationTest {
 
 	@BeforeClass
 	public static void setUpPostgres() {
-		PostgreSQLContainer postgres = new PostgreSQLContainer<>();
-		postgres.start();
-		HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource().withUrl(postgres.getJdbcUrl()).withPoolName("test")
-				.withUser(postgres.getUsername()).withPassword(postgres.getPassword()).build();
-		connector = new PostgresConnector(hikariDataSource);
-		new PostgresInitializer(connector, tableNamesResolver).initialize();
+		final Optional<String> fromCompose = Optional.ofNullable(System.getenv("FROM_COMPOSE"));
+
+		if(fromCompose.isPresent()){
+			HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource().withUrl("jdbc:postgresql://postgres:5432/testdb").withPoolName("test")
+					.withUser("postgres").withPassword("postgres").build();
+			connector = new PostgresConnector(hikariDataSource);
+
+		}else{
+			PostgreSQLContainer postgres = new PostgreSQLContainer<>();
+			postgres.start();
+			HikariDataSource hikariDataSource = HikariDataSourceBuilder.defaultDataSource().withUrl(postgres.getJdbcUrl()).withPoolName("test")
+					.withUser(postgres.getUsername()).withPassword(postgres.getPassword()).build();
+			connector = new PostgresConnector(hikariDataSource);
+
+		}
+
+				new PostgresInitializer(connector, tableNamesResolver).initialize();
 		entityManager = new JsonbEntityManager(objectMapper, connector, tableNamesResolver);
 	}
 

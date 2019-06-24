@@ -108,12 +108,12 @@
 			<version>1.11.2</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/postgresql/postgresql -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>9.3-1100-jdbc41</version>
+			<version>42.2.5</version>
 		</dependency>
+
 
 	</dependencies>
 	<build>

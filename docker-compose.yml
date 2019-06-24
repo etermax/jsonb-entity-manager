@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: "postgres"
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=testdb
+    ports:
+      - "5433:5432" # Bind host port 5432 to PostgreSQL port 5432
+
+  jsonb:
+    build: .
+    environment:
+      - FROM_COMPOSE=true
+
+
+
