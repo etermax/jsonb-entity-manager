@@ -21,6 +21,7 @@ jobs:
       MAVEN_OPTS: -Xmx3200m
       _JAVA_OPTIONS: -Djdk.net.URLClassPath.disableClassPathURLCheck=true
       JAVA_OPTIONS: -Djdk.net.URLClassPath.disableClassPathURLCheck=true
+      TESTCONTAINERS_RYUK_DISABLED: true
 
     steps:
       - setup_remote_docker
