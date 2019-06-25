@@ -20,7 +20,6 @@ jobs:
       # Customize the JVM maximum heap limit
       MAVEN_OPTS: -Xmx3200m
       _JAVA_OPTIONS: -Djdk.net.URLClassPath.disableClassPathURLCheck=true
-      JAVA_OPTIONS: -Djdk.net.URLClassPath.disableClassPathURLCheck=true
       TESTCONTAINERS_RYUK_DISABLED: true
 
     steps:
@@ -42,5 +41,4 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
       # run tests!
-      - run: mvn test
-
+      - run: docker-compose -f docker-compose.yml -p tests up --build --abort-on-container-exit
